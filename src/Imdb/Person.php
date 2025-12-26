@@ -85,9 +85,9 @@ class Person extends MdbBase
     public static function fromSearchResults(
         $id,
         $name,
-        Config $config = null,
-        LoggerInterface $logger = null,
-        CacheInterface $cache = null
+        ?Config $config = null,
+        ?LoggerInterface $logger = null,
+        ?CacheInterface $cache = null
     ) {
         $person = new self($id, $config, $logger, $cache);
         $person->fullname = $name;
@@ -96,15 +96,15 @@ class Person extends MdbBase
 
     /**
      * @param string $id IMDBID to use for data retrieval
-     * @param Config $config OPTIONAL override default config
-     * @param LoggerInterface $logger OPTIONAL override default logger
-     * @param CacheInterface $cache OPTIONAL override default cache
+     * @param Config|null $config OPTIONAL override default config
+     * @param LoggerInterface|null $logger OPTIONAL override default logger
+     * @param CacheInterface|null $cache OPTIONAL override default cache
      */
     public function __construct(
         $id,
-        Config $config = null,
-        LoggerInterface $logger = null,
-        CacheInterface $cache = null
+        ?Config $config = null,
+        ?LoggerInterface $logger = null,
+        ?CacheInterface $cache = null
     ) {
         parent::__construct($config, $logger, $cache);
         $this->setid($id);

@@ -149,9 +149,9 @@ class Title extends MdbBase
         $title,
         $year,
         $type,
-        Config $config = null,
-        LoggerInterface $logger = null,
-        CacheInterface $cache = null
+        ?Config $config = null,
+        ?LoggerInterface $logger = null,
+        ?CacheInterface $cache = null
     ) {
         $imdb = new Title($id, $config, $logger, $cache);
         $imdb->main_title = $title;
@@ -162,15 +162,15 @@ class Title extends MdbBase
 
     /**
      * @param string $id IMDb ID. e.g. 285331 for https://www.imdb.com/title/tt0285331/
-     * @param Config $config OPTIONAL override default config
-     * @param LoggerInterface $logger OPTIONAL override default logger `\Imdb\Logger` with a custom one
-     * @param CacheInterface $cache OPTIONAL override the default cache with any PSR-16 cache. None of the caching config in `\Imdb\Config` have any effect except cache_expire
+     * @param Config|null $config OPTIONAL override default config
+     * @param LoggerInterface|null $logger OPTIONAL override default logger `\Imdb\Logger` with a custom one
+     * @param CacheInterface|null $cache OPTIONAL override the default cache with any PSR-16 cache. None of the caching config in `\Imdb\Config` have any effect except cache_expire
      */
     public function __construct(
         $id,
-        Config $config = null,
-        LoggerInterface $logger = null,
-        CacheInterface $cache = null
+        ?Config $config = null,
+        ?LoggerInterface $logger = null,
+        ?CacheInterface $cache = null
     ) {
         parent::__construct($config, $logger, $cache);
         $this->setid($id);
