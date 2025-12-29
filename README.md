@@ -1,3 +1,7 @@
+This is a temporary fork of [imdbphp/imdbphp](https://github.com/tboothman/imdbphp) to allow the legacy [sorfi.org](https://sorfi.org) to run in a modern environment (Symfony ^8.0, PHP ^8.4). Original README below.
+
+---
+
 imdbphp
 =======
 
