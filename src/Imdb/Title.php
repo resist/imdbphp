@@ -53,6 +53,8 @@ class Title extends MdbBase
     protected $langs = array();
     protected $langs_full = array();
     protected $aspectratio = "";
+    protected $main_rating = null;
+    protected $main_votes = null;
     protected $main_comment = "";
     protected $main_genre = "";
     protected $main_keywords = array();
@@ -471,7 +473,8 @@ EOF;
      */
     public function rating()
     {
-        return isset($this->jsonLD()->aggregateRating->ratingValue) ? $this->jsonLD()->aggregateRating->ratingValue : '';
+        $this->ratingsSummary();
+        return $this->main_rating !== null ? $this->main_rating : '';
     }
 
     /**
@@ -481,7 +484,46 @@ EOF;
      */
     public function votes()
     {
-        return isset($this->jsonLD()->aggregateRating->ratingCount) ? $this->jsonLD()->aggregateRating->ratingCount : 0;
+        $this->ratingsSummary();
+        return $this->main_votes !== null ? $this->main_votes : 0;
+    }
+
+    /**
+     * Fetch rating and vote count from the GraphQL API and cache them.
+     *
+     * The previous implementation read these from the JSON-LD block of the
+     * HTML title page. IMDb increasingly serves that page behind an AWS WAF
+     * bot challenge (HTTP 202 with header "x-amzn-waf-action: challenge" and
+     * an empty body), which made rating()/votes() throw. The GraphQL endpoint
+     * is not subject to that challenge, so we use it here. A single request
+     * populates both rating and votes.
+     *
+     * @return void
+     */
+    protected function ratingsSummary()
+    {
+        if ($this->main_rating !== null) {
+            return;
+        }
+
+        $query = <<<EOF
+query Rating(\$id: ID!) {
+  title(id: \$id) {
+    ratingsSummary {
+      aggregateRating
+      voteCount
+    }
+  }
+}
+EOF;
+        $data = $this->graphql->query($query, "Rating", ["id" => "tt$this->imdbID"]);
+
+        $this->main_rating = isset($data->title->ratingsSummary->aggregateRating)
+            ? $data->title->ratingsSummary->aggregateRating
+            : '';
+        $this->main_votes = isset($data->title->ratingsSummary->voteCount)
+            ? $data->title->ratingsSummary->voteCount
+            : 0;
     }
 
     /**
