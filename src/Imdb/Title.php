@@ -55,6 +55,7 @@ class Title extends MdbBase
     protected $aspectratio = "";
     protected $main_rating = null;
     protected $main_votes = null;
+    protected $main_original_title = null;
     protected $main_comment = "";
     protected $main_genre = "";
     protected $main_keywords = array();
@@ -310,13 +311,29 @@ class Title extends MdbBase
      */
     public function orig_title()
     {
-        $jsonLD = $this->jsonLD();
-        $originalName = $jsonLD->name;
-        $displayName = isset($jsonLD->alternateName) ? $jsonLD->alternateName : null;
-        if ($originalName && $displayName && $originalName != $displayName) {
-            return $originalName;
+        if ($this->main_original_title === null) {
+            $query = <<<EOF
+query OriginalTitle(\$id: ID!) {
+  title(id: \$id) {
+    titleText {
+      text
+    }
+    originalTitleText {
+      text
+    }
+  }
+}
+EOF;
+            $data = $this->graphql->query($query, "OriginalTitle", ["id" => "tt$this->imdbID"]);
+
+            $displayName = isset($data->title->titleText->text) ? $data->title->titleText->text : null;
+            $originalName = isset($data->title->originalTitleText->text) ? $data->title->originalTitleText->text : null;
+            $this->main_original_title = ($originalName && $displayName && $originalName != $displayName)
+                ? $originalName
+                : '';
         }
-        return null;
+
+        return $this->main_original_title !== '' ? $this->main_original_title : null;
     }
 
     /** Get year
